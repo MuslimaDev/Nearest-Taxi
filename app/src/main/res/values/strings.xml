@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">Taxi</string>
-    <string name="mapbox_access_token">pk.eyJ1IjoibXVzbGltYTAxIiwiYSI6ImNqcmFjMXF0cTBvang0NW1sd281azdpdW8ifQ.t6LnQkoAQgDCEo2JpkpHMg</string>
+    <string name="mapbox_access_token">pk.eyJ1IjoibXVzbGltYTIyIiwiYSI6ImNqcmF1M2NoZTB0ams0NW1sbjBhOHdkMmIifQ.s2hHOWSDQjFX0FXi6ckSoA</string>
 </resources>

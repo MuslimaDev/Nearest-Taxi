@@ -12,6 +12,7 @@ import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
+import com.mapbox.mapboxsdk.maps.Style;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
     private MapView mapView;
@@ -21,6 +22,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Mapbox.getInstance(this,getString(R.string.mapbox_access_token));
         setContentView(R.layout.activity_main);
         mapView = findViewById(R.id.mapView);
         initMap(savedInstanceState);
@@ -28,13 +30,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void initMap(Bundle savedInstanceState) {
-        Mapbox.getInstance(this,getString(R.string.mapbox_access_token));
         mapView.getMapAsync(this);
         mapView.onCreate(savedInstanceState);
     }
 
     @Override
     public void onMapReady(@NonNull MapboxMap mapboxMap) {
+        mapboxMap.setStyle(Style.MAPBOX_STREETS);
         mapboxMap.addMarker(new MarkerOptions()
                 .position(new LatLng(42.87,74.59))
                 .title("Bishkek")
