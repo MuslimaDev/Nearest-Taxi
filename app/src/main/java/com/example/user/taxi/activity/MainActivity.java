@@ -3,6 +3,7 @@ package com.example.user.taxi.activity;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.example.user.taxi.R;
@@ -23,19 +24,21 @@ import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback{
     private MapView mapView;
-    private MapboxMap mapbox;
+    private MapboxMap map;
     private Marker marker;
     private RetrofitService retrofitService;
     private double longitude, latitude;
     private String tel;
     private MarkerOptions markerOptions;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +48,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapView = findViewById(R.id.mapView);
         initMap(savedInstanceState);
         retrofitService = Taxi.get(getApplicationContext()).getRetrofitService();
+
+        getDriversLocation();
     }
 
     private void initMap(Bundle savedInstanceState) {
@@ -54,31 +59,27 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onMapReady(@NonNull MapboxMap mapboxMap) {
-        MainActivity.this.mapbox = mapboxMap;
-        mapboxMap.setStyle(Style.MAPBOX_STREETS);
-        mapboxMap.addMarker(new MarkerOptions()
-                .position(new LatLng(42.8700000, 74.5900000))
-                .title("Bishkek")
-        );
-        getDriversLocation();
+        MainActivity.this.map = mapboxMap;
+        mapboxMap.setStyle(Style.DARK);
+
     }
 
     private void getDriversLocation() {
-        retrofitService.getDriverLocation(longitude, latitude)
+        retrofitService.getDriverLocation(42.8792502, 74.6178904)
                 .enqueue(new Callback<Example>() {
                     @Override
                     public void onResponse(Call<Example> call, Response<Example> response) {
                         if (response.isSuccessful() && response.body() != null) {
-                            for (Company company :
-                                    response.body().getCompanies()) {
-                              //  tel = company.getContacts().get(1).getContact();
-                                for (Driver driver :
-                                        company.getDrivers()) {
+                            for (Company company : response.body().getCompanies()) {
+                                for (Driver driver : company.getDrivers()) {
                                     Icon icon = IconFactory.getInstance(MainActivity.this).fromResource(R.drawable.taxi_icon);
                                     LatLng cars = new LatLng(driver.getLat(), driver.getLon());
-                                    mapbox.addMarker(new MarkerOptions()
-                                            .position(new LatLng(42.874886, 74.597305))
-                                            .title("taxi")
+
+                                    Log.d("cars", String.valueOf(cars.getLatitude() + cars.getLongitude()));
+
+                                    map.addMarker(new MarkerOptions()
+                                            .position(cars)
+                                            .title("Taxi")
                                             .icon(icon));
                                 }
                             }
@@ -135,5 +136,4 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onDestroy();
         mapView.onDestroy();
     }
-
 }
