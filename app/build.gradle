@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 28
@@ -33,6 +35,8 @@ dependencies {
     implementation ('com.mapbox.mapboxsdk:mapbox-android-sdk:7.0.1'){
         exclude group: 'group_name', module: 'module_name' }
     implementation 'com.mapbox.mapboxsdk:mapbox-android-core:1.1.0'
+    implementation "com.google.android.gms:play-services-location:16.0.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 
 repositories {

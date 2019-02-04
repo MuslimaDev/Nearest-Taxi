@@ -13,6 +13,7 @@
         android:layout_height="wrap_content"
         mapbox:mapbox_cameraTargetLat="42.87"
         mapbox:mapbox_cameraTargetLng="74.59"
-        mapbox:mapbox_cameraZoom="11" />
+        mapbox:mapbox_cameraZoom="11"
+        tools:ignore="MissingConstraints" />
 
 </android.support.constraint.ConstraintLayout>
