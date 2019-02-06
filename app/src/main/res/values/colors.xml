@@ -3,4 +3,7 @@
     <color name="colorPrimary">#000000</color>
     <color name="colorPrimaryDark">#000000</color>
     <color name="colorAccent">#000000</color>
+    <color name="calloutWindowsBackground">#FFC107</color>
+    <color name="mapboxGreen">#4CAF50</color>
+    <color name="mapboxRed">#F44336</color>
 </resources>

@@ -10,12 +10,12 @@ class PermissionUtils {
         fun isLocationEnable(activity: Activity): Boolean {
 
             val permissions = arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION)
-                if (isLocationGranted(activity)) return true
+            if (isLocationGranted(activity)) return true
 
-                ActivityCompat.requestPermissions(activity, permissions, 100)
+            ActivityCompat.requestPermissions(activity, permissions, 100)
 
-                return false
-            }
+            return false
+        }
 
 
         private fun isLocationGranted(context: Context): Boolean {

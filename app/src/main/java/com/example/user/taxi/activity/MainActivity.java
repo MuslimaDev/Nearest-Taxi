@@ -24,6 +24,7 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.maps.android.clustering.ClusterManager;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
@@ -45,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private MapboxMap map;
     private Marker marker;
     private RetrofitService retrofitService;
-    private double longitude, latitude;
+    private double lon, lat;
     private String tel;
     private MarkerOptions markerOptions;
     private LocationManager locationManager;
@@ -77,6 +78,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onMapReady(@NonNull MapboxMap mapboxMap) {
         MainActivity.this.map = mapboxMap;
         mapboxMap.setStyle(Style.DARK);
+       /* map.addMarker(new MarkerOptions()
+                .position(42.87922298, 74.61795241)
+                .title()
+                .icon(R.drawable.current_location));*/
 
     }
 
@@ -95,7 +100,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                                     map.addMarker(new MarkerOptions()
                                             .position(cars)
-                                            .title("Taxi")
                                             .icon(icon));
                                 }
                             }
