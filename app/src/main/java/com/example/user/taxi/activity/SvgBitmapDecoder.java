@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.Options;
@@ -18,7 +19,7 @@ import com.caverock.androidsvg.SVGParseException;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class SvgBitmapDecoder implements ResourceDecoder{
+public class SvgBitmapDecoder extends AppCompatActivity implements ResourceDecoder {
     private final BitmapPool bitmapPool;
 
     public SvgBitmapDecoder(Context context) {
@@ -50,13 +51,13 @@ public class SvgBitmapDecoder implements ResourceDecoder{
     }
 
     @Override
-    public boolean handles(@NonNull Object source, @NonNull Options options) throws IOException {
+    public boolean handles(@NonNull Object source, @NonNull Options options) {
         return false;
     }
 
     @Nullable
     @Override
-    public Resource decode(@NonNull Object source, int width, int height, @NonNull Options options) throws IOException {
+    public Resource decode(@NonNull Object source, int width, int height, @NonNull Options options) {
         return null;
     }
 }

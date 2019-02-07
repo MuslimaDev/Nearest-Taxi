@@ -23,17 +23,14 @@ public class CurrentLocationActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-      // setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main);
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
-
             showLocation(location);
             return;
         }
-
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 10);
-
     }
 
     @SuppressLint("MissingPermission")
@@ -46,7 +43,8 @@ public class CurrentLocationActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (locationManager != null) locationManager.removeUpdates((android.location.LocationListener) locationListener);
+        if (locationManager != null)
+            locationManager.removeUpdates((android.location.LocationListener) locationListener);
     }
 
     private LocationListener locationListener = new LocationListener() {
@@ -61,7 +59,6 @@ public class CurrentLocationActivity extends AppCompatActivity {
         private void onProviderEnabled(String provider) {
             showLocation(locationManager.getLastKnownLocation(provider));
         }
-
     };
 
     @Override

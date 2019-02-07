@@ -1,5 +1,6 @@
 package com.example.user.taxi.activity;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
@@ -21,45 +22,33 @@ import com.mapbox.mapboxsdk.utils.BitmapUtils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Objects;
 
 public class ClusteringActivity extends AppCompatActivity {
-
     private MapView mapView;
     private MapboxMap mapboxMap;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Mapbox access token is configured here. This needs to be called either in your application
-        // object or in the same activity which contains the mapview.
         Mapbox.getInstance(this, getString(R.string.mapbox_access_token));
-
-        // This contains the MapView in XML and needs to be called after the access token is configured.
         setContentView(R.layout.activity_main);
-
         mapView = findViewById(R.id.mapView);
-
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(new OnMapReadyCallback() {
+
             @Override
             public void onMapReady(@NonNull MapboxMap map) {
-
                 mapboxMap = map;
-
                 map.setStyle(Style.DARK, new Style.OnStyleLoaded() {
                     @Override
                     public void onStyleLoaded(@NonNull Style style) {
                         mapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(
                                 42.8700000, 74.5900000), 3));
-
                         addClusteredGeoJsonSource(style);
-                        style.addImage("cross-icon-id", BitmapUtils.getBitmapFromDrawable(
-                                getResources().getDrawable(R.drawable.taxi)));
-
-                        Toast.makeText(ClusteringActivity.this, "Zoom map",
-                                Toast.LENGTH_SHORT).show();
+                        style.addImage("cross-icon-id", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
+                                getResources().getDrawable(R.drawable.taxi))));
+                        Toast.makeText(ClusteringActivity.this, "Zoom map", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -108,10 +97,8 @@ public class ClusteringActivity extends AppCompatActivity {
         mapView.onSaveInstanceState(outState);
     }
 
-
+    @SuppressLint("LogNotTimber")
     private void addClusteredGeoJsonSource(@NonNull Style loadedMapStyle) {
-
-        // Add a new source from the GeoJSON data and set the 'cluster' option to true.
         try {
             loadedMapStyle.addSource(
                     // Point to GeoJSON data. This example visualizes all M1.0+ earthquakes from
@@ -128,13 +115,10 @@ public class ClusteringActivity extends AppCompatActivity {
             Log.e("dataClusterActivity", "Check the URL " + malformedUrlException.getMessage());
         }
 
-
-        // Use the earthquakes GeoJSON source to create three layers: One layer for each cluster category.
-        // Each point range gets a different fill color.
-        int[][] layers = new int[][] {
-                new int[] {150, ContextCompat.getColor(this, R.color.mapboxRed)},
-                new int[] {20, ContextCompat.getColor(this, R.color.mapboxGreen)},
-                new int[] {0, ContextCompat.getColor(this, R.color.mapbox_blue)}
+        int[][] layers = new int[][]{
+                new int[]{150, ContextCompat.getColor(this, R.color.mapboxRed)},
+                new int[]{20, ContextCompat.getColor(this, R.color.mapboxGreen)},
+                new int[]{0, ContextCompat.getColor(this, R.color.mapbox_blue)}
         };
 
     }

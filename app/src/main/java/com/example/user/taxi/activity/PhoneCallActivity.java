@@ -1,3 +1,4 @@
+/*
 package com.example.user.taxi.activity;
 
 import android.Manifest;
@@ -21,7 +22,7 @@ public class PhoneCallActivity extends AppCompatActivity {
         Button button = findViewById(R.id.callButton);
 
         button.setOnClickListener(new View.OnClickListener() {
-          public void onClick(View arg0) {
+            public void onClick(View arg0) {
                 Intent callIntent = new Intent(Intent.ACTION_CALL);
                 callIntent.setData(Uri.parse("tel:0555000000"));
 
@@ -35,3 +36,4 @@ public class PhoneCallActivity extends AppCompatActivity {
 
     }
 }
+*/

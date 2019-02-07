@@ -6,9 +6,12 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.user.taxi.R;
@@ -24,30 +27,36 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.maps.android.clustering.ClusterManager;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
+import com.mapbox.mapboxsdk.annotations.InfoWindow;
 import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 
+import com.mapbox.mapboxsdk.camera.CameraPosition;
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 
+import org.jetbrains.annotations.NotNull;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener, View.OnClickListener {
     private MapView mapView;
     private MapboxMap map;
+    com.google.android.gms.maps.model.Marker gmsMarker;
     private Marker marker;
     private RetrofitService retrofitService;
     private double lon, lat;
     private String tel;
+    private ImageView myLocation;
     private MarkerOptions markerOptions;
     private LocationManager locationManager;
     private Location location;
@@ -59,14 +68,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Mapbox.getInstance(this, getString(R.string.mapbox_access_token));
         setContentView(R.layout.activity_main);
         mapView = findViewById(R.id.mapView);
+        myLocation = findViewById(R.id.myLocationButton);
         initMap(savedInstanceState);
         retrofitService = Taxi.get(getApplicationContext()).getRetrofitService();
-
+        myLocation.setOnClickListener(this);
         if (PermissionUtils.Companion.isLocationEnable(this)) {
             getCurrentLocation();
         }
 
         getDriversLocation();
+
     }
 
     private void initMap(Bundle savedInstanceState) {
@@ -78,18 +89,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onMapReady(@NonNull MapboxMap mapboxMap) {
         MainActivity.this.map = mapboxMap;
         mapboxMap.setStyle(Style.DARK);
-       /* map.addMarker(new MarkerOptions()
-                .position(42.87922298, 74.61795241)
-                .title()
-                .icon(R.drawable.current_location));*/
-
+        map.addMarker(new MarkerOptions()
+                .position(new LatLng(42.87922298, 74.61795241))
+                .title("Current Location"));
     }
 
     private void getDriversLocation() {
         retrofitService.getDriverLocation(42.8792502, 74.6178904)
                 .enqueue(new Callback<Example>() {
+                    @SuppressLint("LogNotTimber")
                     @Override
-                    public void onResponse(Call<Example> call, Response<Example> response) {
+                    public void onResponse(@NotNull Call<Example> call, @NotNull Response<Example> response) {
                         if (response.isSuccessful() && response.body() != null) {
                             for (Company company : response.body().getCompanies()) {
                                 for (Driver driver : company.getDrivers()) {
@@ -98,9 +108,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                                     Log.d("cars", String.valueOf(cars.getLatitude() + cars.getLongitude()));
 
+                                    MarkerOptions markerOpt = new MarkerOptions();
                                     map.addMarker(new MarkerOptions()
                                             .position(cars)
+                                            .title("abc")
                                             .icon(icon));
+
+                                    CalloutWindowActivity adapter = new CalloutWindowActivity(MainActivity.this);
+                                    map.setInfoWindowAdapter(adapter);
+/*
+                                    map.addMarker(markerOpt).getInfoWindow();
+*/
+
                                 }
                             }
                         } else {
@@ -109,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
 
                     @Override
-                    public void onFailure(Call<Example> call, Throwable t) {
+                    public void onFailure(@NotNull Call<Example> call, @NotNull Throwable t) {
                         Toast.makeText(MainActivity.this, "No internet connection", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -175,7 +194,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-
     LocationCallback mLocationCallback = new LocationCallback() {
         @Override
         public void onLocationResult(LocationResult locationResult) {
@@ -198,5 +216,25 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             }
         });
+    }
+
+
+    public void cameraUpdate(double lat, double lng) {
+        if (map != null) {
+            Log.d("LocCameraUpdate", String.valueOf(lat + " " + lng));
+            CameraPosition position = new CameraPosition.Builder()
+                    .target(new LatLng(lat - 0.01, lng))
+                    .bearing(0)
+                    .zoom(13).tilt(15).build();
+            map.animateCamera(CameraUpdateFactory.newCameraPosition(position));
+
+
+        }
+
+    }
+
+    @Override
+    public void onClick(View v) {
+        cameraUpdate(42.87922298, 74.61795241);
     }
 }
