@@ -2,7 +2,6 @@ package com.example.user.taxi.activity;
 
 import android.app.Activity;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.user.taxi.R;
@@ -11,10 +10,9 @@ import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 
 public class CalloutWindowActivity implements MapboxMap.InfoWindowAdapter {
-
     private Activity context;
 
-    public CalloutWindowActivity(Activity context){
+    CalloutWindowActivity(Activity context){
         this.context = context;
     }
 
@@ -26,7 +24,6 @@ public class CalloutWindowActivity implements MapboxMap.InfoWindowAdapter {
     public View getInfoContents(Marker marker) {
         View view = context.getLayoutInflater().inflate(R.layout.callout_window, null);
 
-        ImageView img = view.findViewById(R.id.image);
         TextView title = view.findViewById(R.id.title);
         TextView sms = view.findViewById(R.id.sms);
         TextView phone = view.findViewById(R.id.phone);

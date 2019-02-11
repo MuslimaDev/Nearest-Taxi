@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +11,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.user.taxi.R;
@@ -30,7 +31,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
-import com.mapbox.mapboxsdk.annotations.InfoWindow;
 import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 
@@ -51,16 +51,9 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener, View.OnClickListener {
     private MapView mapView;
     private MapboxMap map;
-    com.google.android.gms.maps.model.Marker gmsMarker;
+    private ListView listView;
     private Marker marker;
     private RetrofitService retrofitService;
-    private double lon, lat;
-    private String tel;
-    private ImageView myLocation;
-    private MarkerOptions markerOptions;
-    private LocationManager locationManager;
-    private Location location;
-    private FusedLocationProviderClient mFusedLocationClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,16 +61,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Mapbox.getInstance(this, getString(R.string.mapbox_access_token));
         setContentView(R.layout.activity_main);
         mapView = findViewById(R.id.mapView);
-        myLocation = findViewById(R.id.myLocationButton);
+        ImageView myLocation = findViewById(R.id.myLocationButton);
         initMap(savedInstanceState);
         retrofitService = Taxi.get(getApplicationContext()).getRetrofitService();
         myLocation.setOnClickListener(this);
         if (PermissionUtils.Companion.isLocationEnable(this)) {
             getCurrentLocation();
         }
-
         getDriversLocation();
-
     }
 
     private void initMap(Bundle savedInstanceState) {
@@ -108,18 +99,33 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                                     Log.d("cars", String.valueOf(cars.getLatitude() + cars.getLongitude()));
 
-                                    MarkerOptions markerOpt = new MarkerOptions();
-                                    map.addMarker(new MarkerOptions()
+                                   marker = map.addMarker(new MarkerOptions()
+                                           .setTitle(company.getName())
                                             .position(cars)
-                                            .title("abc")
+                                            .setSnippet(company.getContacts().get(1).getContact())
                                             .icon(icon));
 
-                                    CalloutWindowActivity adapter = new CalloutWindowActivity(MainActivity.this);
-                                    map.setInfoWindowAdapter(adapter);
-/*
-                                    map.addMarker(markerOpt).getInfoWindow();
-*/
+                                   map.setInfoWindowAdapter(new MapboxMap.InfoWindowAdapter(){
 
+
+                                       @Nullable
+                                       @Override
+                                       public View getInfoWindow(@NonNull Marker marker) {
+                                           View view = (View) getLayoutInflater().inflate(R.layout.callout_window, null);
+                                           TextView title = view.findViewById(R.id.title);
+                                           TextView sms = view.findViewById(R.id.sms);
+                                           TextView phone = view.findViewById(R.id.phone);
+
+                                           title.setText(marker.getTitle());
+                                           sms.setText(marker.getSnippet());
+                                           return view;
+                                       }
+                                   });
+                                    MapboxMap.InfoWindowAdapter infoWindowAdapter = marker -> {
+
+                                        return null;
+                                    };
+                                    map.setInfoWindowAdapter(infoWindowAdapter);
                                 }
                             }
                         } else {
@@ -203,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @SuppressLint("MissingPermission")
     public void getCurrentLocation() {
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        FusedLocationProviderClient mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mFusedLocationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
 
             public void onSuccess(Location location) {
@@ -217,7 +223,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
     }
-
 
     public void cameraUpdate(double lat, double lng) {
         if (map != null) {
