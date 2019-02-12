@@ -4,14 +4,13 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,9 +22,7 @@ import com.example.user.taxi.models.Example;
 import com.example.user.taxi.network.RetrofitService;
 import com.example.user.taxi.utils.PermissionUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.mapbox.mapboxsdk.Mapbox;
@@ -48,11 +45,13 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener, View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements
+        OnMapReadyCallback, LocationListener, View.OnClickListener, MapboxMap.OnInfoWindowLongClickListener {
     private MapView mapView;
     private MapboxMap map;
-    private ListView listView;
     private Marker marker;
+    private Company company;
+    private String phone;
     private RetrofitService retrofitService;
 
     @Override
@@ -83,6 +82,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         map.addMarker(new MarkerOptions()
                 .position(new LatLng(42.87922298, 74.61795241))
                 .title("Current Location"));
+
+        map.setOnInfoWindowLongClickListener(this);
     }
 
     private void getDriversLocation() {
@@ -94,33 +95,34 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         if (response.isSuccessful() && response.body() != null) {
                             for (Company company : response.body().getCompanies()) {
                                 for (Driver driver : company.getDrivers()) {
+                                    phone = company.getContacts().get(1).getContact();
                                     Icon icon = IconFactory.getInstance(MainActivity.this).fromResource(R.drawable.taxi_icon);
                                     LatLng cars = new LatLng(driver.getLat(), driver.getLon());
 
+
                                     Log.d("cars", String.valueOf(cars.getLatitude() + cars.getLongitude()));
 
-                                   marker = map.addMarker(new MarkerOptions()
-                                           .setTitle(company.getName())
+                                    marker = map.addMarker(new MarkerOptions()
+                                            .setTitle(company.getName())
                                             .position(cars)
-                                            .setSnippet(company.getContacts().get(1).getContact())
+                                            .setSnippet("TEL: " + company.getContacts().get(1).getContact() + "\n" + "SMS: "
+                                                    + company.getContacts().get(0).getContact())
                                             .icon(icon));
 
-                                   map.setInfoWindowAdapter(new MapboxMap.InfoWindowAdapter(){
+                                    map.setInfoWindowAdapter(new MapboxMap.InfoWindowAdapter() {
 
 
-                                       @Nullable
-                                       @Override
-                                       public View getInfoWindow(@NonNull Marker marker) {
-                                           View view = (View) getLayoutInflater().inflate(R.layout.callout_window, null);
-                                           TextView title = view.findViewById(R.id.title);
-                                           TextView sms = view.findViewById(R.id.sms);
-                                           TextView phone = view.findViewById(R.id.phone);
-
-                                           title.setText(marker.getTitle());
-                                           sms.setText(marker.getSnippet());
-                                           return view;
-                                       }
-                                   });
+                                        @NotNull
+                                        @Override
+                                        public View getInfoWindow(@NonNull Marker marker) {
+                                            View view = getLayoutInflater().inflate(R.layout.callout_window, null);
+                                            TextView title = view.findViewById(R.id.title);
+                                            TextView sms = view.findViewById(R.id.sms);
+                                            title.setText(marker.getTitle());
+                                            sms.setText(marker.getSnippet());
+                                            return view;
+                                        }
+                                    });
                                     MapboxMap.InfoWindowAdapter infoWindowAdapter = marker -> {
 
                                         return null;
@@ -200,12 +202,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    LocationCallback mLocationCallback = new LocationCallback() {
-        @Override
-        public void onLocationResult(LocationResult locationResult) {
-            super.onLocationResult(locationResult);
-        }
-    };
 
     @SuppressLint("MissingPermission")
     public void getCurrentLocation() {
@@ -226,20 +222,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void cameraUpdate(double lat, double lng) {
         if (map != null) {
-            Log.d("LocCameraUpdate", String.valueOf(lat + " " + lng));
+            Log.d("LocCameraUpdate", String.valueOf(lat + lng));
             CameraPosition position = new CameraPosition.Builder()
                     .target(new LatLng(lat - 0.01, lng))
                     .bearing(0)
                     .zoom(13).tilt(15).build();
             map.animateCamera(CameraUpdateFactory.newCameraPosition(position));
-
-
         }
-
     }
 
     @Override
     public void onClick(View v) {
         cameraUpdate(42.87922298, 74.61795241);
+    }
+
+    @Override
+    public void onInfoWindowLongClick(@NonNull Marker marker) {
+        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone, null));
+        startActivity(intent);
     }
 }
