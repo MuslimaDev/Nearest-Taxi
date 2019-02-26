@@ -206,18 +206,6 @@ public class MainActivity extends AppCompatActivity implements
     @SuppressLint("MissingPermission")
     public void getCurrentLocation() {
         FusedLocationProviderClient mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        mFusedLocationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
-
-            public void onSuccess(Location location) {
-                if (location != null) {
-                    Intent intent = new Intent();
-                    intent.putExtra("location1", location.getLatitude());
-                    intent.putExtra("location2", location.getLongitude());
-                    startActivity(intent);
-                    finish();
-                }
-            }
-        });
     }
 
     public void cameraUpdate(double lat, double lng) {
