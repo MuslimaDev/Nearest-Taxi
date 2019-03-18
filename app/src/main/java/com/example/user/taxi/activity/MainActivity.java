@@ -44,8 +44,6 @@ import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 
-import org.jetbrains.annotations.NotNull;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -151,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .enqueue(new Callback<Example>() {
                     @SuppressLint("LogNotTimber")
                     @Override
-                    public void onResponse(@NotNull Call<Example> call, @NotNull Response<Example> response) {
+                    public void onResponse(Call<Example> call, Response<Example> response) {
                         if (response.isSuccessful() && response.body() != null) {
                             for (Company company : response.body().getCompanies()) {
                                 for (Driver driver : company.getDrivers()) {
@@ -166,7 +164,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                                     map.setInfoWindowAdapter(new MapboxMap.InfoWindowAdapter() {
 
-                                        @NotNull
                                         @Override
                                         public View getInfoWindow(@NonNull Marker marker) {
                                             View view = getLayoutInflater().inflate(R.layout.callout_window, null);
@@ -189,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
 
                     @Override
-                    public void onFailure(@NotNull Call<Example> call, @NotNull Throwable t) {
+                    public void onFailure(Call<Example> call, Throwable t) {
                         Toast.makeText(MainActivity.this, "No internet connection", Toast.LENGTH_SHORT).show();
                     }
                 });
