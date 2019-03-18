@@ -1,4 +1,3 @@
-
 package com.example.user.taxi.models;
 
 import com.google.gson.annotations.SerializedName;
@@ -26,5 +25,4 @@ public class Driver {
     public void setLon(Double lon) {
         this.lon = lon;
     }
-
 }

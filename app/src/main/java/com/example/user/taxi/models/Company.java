@@ -1,4 +1,3 @@
-
 package com.example.user.taxi.models;
 
 import java.util.List;
@@ -50,5 +49,4 @@ public class Company {
     public void setDrivers(List<Driver> drivers) {
         this.drivers = drivers;
     }
-
 }

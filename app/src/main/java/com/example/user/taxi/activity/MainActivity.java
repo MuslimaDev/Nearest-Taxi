@@ -1,16 +1,22 @@
 package com.example.user.taxi.activity;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,7 +30,6 @@ import com.example.user.taxi.utils.PermissionUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
@@ -45,13 +50,10 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity implements
-        OnMapReadyCallback, LocationListener, View.OnClickListener, MapboxMap.OnInfoWindowLongClickListener {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener, View.OnClickListener {
     private MapView mapView;
     private MapboxMap map;
     private Marker marker;
-    private Company company;
-    private String phone;
     private RetrofitService retrofitService;
 
     @Override
@@ -61,13 +63,73 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
         mapView = findViewById(R.id.mapView);
         ImageView myLocation = findViewById(R.id.myLocationButton);
+        ImageView callButton = findViewById(R.id.callButton);
         initMap(savedInstanceState);
         retrofitService = Taxi.get(getApplicationContext()).getRetrofitService();
         myLocation.setOnClickListener(this);
+
         if (PermissionUtils.Companion.isLocationEnable(this)) {
             getCurrentLocation();
         }
+
         getDriversLocation();
+
+        callButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openDialog();
+            }
+        });
+    }
+
+    @SuppressLint("SetTextI18n")
+    public void openDialog() {
+        AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+        TextView title = new TextView(this);
+        title.setText("SELECT TAXI SERVICE");
+        title.setPadding(10, 10, 10, 10);
+        title.setGravity(Gravity.CENTER);
+        title.setTextColor(Color.BLACK);
+        title.setTextSize(20);
+        alertDialog.setCustomTitle(title);
+
+        TextView msg = new TextView(this);
+        msg.setText("\nWith tapping a button you can make a call \n to taxi service that was chosen by you.");
+        msg.setGravity(Gravity.CENTER_HORIZONTAL);
+        msg.setTextColor(Color.BLACK);
+        alertDialog.setView(msg);
+
+        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "NAMBA", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                String phone = "0559976000";
+                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone, null));
+                startActivity(intent);
+            }
+        });
+
+        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "SMS", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                String number = "0551061236";
+                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", number, null));
+                startActivity(intent);
+            }
+        });
+
+        new Dialog(getApplicationContext());
+        alertDialog.show();
+
+        final Button okBT = alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+        LinearLayout.LayoutParams neutralBtnLP = (LinearLayout.LayoutParams) okBT.getLayoutParams();
+        neutralBtnLP.gravity = Gravity.FILL_HORIZONTAL;
+        okBT.setPadding(50, 10, 10, 10);
+        okBT.setTextColor(Color.BLUE);
+        okBT.setLayoutParams(neutralBtnLP);
+
+        final Button cancelBT = alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+        LinearLayout.LayoutParams negBtnLP = (LinearLayout.LayoutParams) okBT.getLayoutParams();
+        negBtnLP.gravity = Gravity.FILL_HORIZONTAL;
+        cancelBT.setTextColor(Color.BLUE);
+        cancelBT.setLayoutParams(negBtnLP);
     }
 
     private void initMap(Bundle savedInstanceState) {
@@ -82,8 +144,6 @@ public class MainActivity extends AppCompatActivity implements
         map.addMarker(new MarkerOptions()
                 .position(new LatLng(42.87922298, 74.61795241))
                 .title("Current Location"));
-
-        map.setOnInfoWindowLongClickListener(this);
     }
 
     private void getDriversLocation() {
@@ -95,22 +155,16 @@ public class MainActivity extends AppCompatActivity implements
                         if (response.isSuccessful() && response.body() != null) {
                             for (Company company : response.body().getCompanies()) {
                                 for (Driver driver : company.getDrivers()) {
-                                    phone = company.getContacts().get(1).getContact();
                                     Icon icon = IconFactory.getInstance(MainActivity.this).fromResource(R.drawable.taxi_icon);
                                     LatLng cars = new LatLng(driver.getLat(), driver.getLon());
-
-
-                                    Log.d("cars", String.valueOf(cars.getLatitude() + cars.getLongitude()));
 
                                     marker = map.addMarker(new MarkerOptions()
                                             .setTitle(company.getName())
                                             .position(cars)
-                                            .setSnippet("TEL: " + company.getContacts().get(1).getContact() + "\n" + "SMS: "
-                                                    + company.getContacts().get(0).getContact())
+                                            .setSnippet("TEL: " + company.getContacts().get(1).getContact() + "\n" + "SMS: " + company.getContacts().get(0).getContact())
                                             .icon(icon));
 
                                     map.setInfoWindowAdapter(new MapboxMap.InfoWindowAdapter() {
-
 
                                         @NotNull
                                         @Override
@@ -124,7 +178,6 @@ public class MainActivity extends AppCompatActivity implements
                                         }
                                     });
                                     MapboxMap.InfoWindowAdapter infoWindowAdapter = marker -> {
-
                                         return null;
                                     };
                                     map.setInfoWindowAdapter(infoWindowAdapter);
@@ -186,7 +239,6 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onLocationChanged(Location location) {
-
     }
 
     @Override
@@ -202,7 +254,6 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-
     @SuppressLint("MissingPermission")
     public void getCurrentLocation() {
         FusedLocationProviderClient mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -210,11 +261,11 @@ public class MainActivity extends AppCompatActivity implements
 
     public void cameraUpdate(double lat, double lng) {
         if (map != null) {
-            Log.d("LocCameraUpdate", String.valueOf(lat + lng));
             CameraPosition position = new CameraPosition.Builder()
                     .target(new LatLng(lat - 0.01, lng))
                     .bearing(0)
                     .zoom(13).tilt(15).build();
+
             map.animateCamera(CameraUpdateFactory.newCameraPosition(position));
         }
     }
@@ -222,11 +273,5 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onClick(View v) {
         cameraUpdate(42.87922298, 74.61795241);
-    }
-
-    @Override
-    public void onInfoWindowLongClick(@NonNull Marker marker) {
-        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone, null));
-        startActivity(intent);
     }
 }

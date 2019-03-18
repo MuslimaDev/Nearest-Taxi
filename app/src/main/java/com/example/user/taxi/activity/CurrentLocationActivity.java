@@ -17,19 +17,18 @@ import com.google.android.gms.location.LocationListener;
 
 public class CurrentLocationActivity extends AppCompatActivity {
     private LocationManager locationManager;
-    Location location;
-
+    private Location location;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             showLocation(location);
             return;
         }
+
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 10);
     }
 
@@ -37,7 +36,6 @@ public class CurrentLocationActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
     }
 
     @Override
@@ -50,9 +48,7 @@ public class CurrentLocationActivity extends AppCompatActivity {
     private LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
-
             showLocation(location);
-
         }
 
         @SuppressLint("MissingPermission")

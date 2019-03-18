@@ -18,7 +18,7 @@
         android:roundIcon="@drawable/taxi"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        tools:ignore="GoogleAppIndexingWarning">
+        tools:ignore="AllowBackup,GoogleAppIndexingWarning">
 
         <activity android:name=".activity.MainActivity">
             <intent-filter>
@@ -27,8 +27,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.CurrentLocationActivity"></activity>
-
+        <activity android:name=".activity.CurrentLocationActivity" />
 
     </application>
 

@@ -1,4 +1,3 @@
-
 package com.example.user.taxi.models;
 
 import java.util.List;
@@ -28,5 +27,4 @@ public class Example {
     public void setCompanies(List<Company> companies) {
         this.companies = companies;
     }
-
 }
